@@ -35,8 +35,5 @@ public class SingleDBconn {
 
         return conn;
     }
-    public static void main(String[] args) {
-        SingleDBconn s=new SingleDBconn();
-        s.getconn();
-    }
+    
 }
