@@ -5,14 +5,12 @@
  */
 package APJ2Test2;
 
-import com.sun.rowset.CachedRowSetImpl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.sql.rowset.CachedRowSet;
 
 /**
  *
@@ -23,11 +21,10 @@ public class ManufacturerImpl {
         SingleDbConn s=new SingleDbConn();
         List<Manufacturers> lst=new ArrayList<>();
         try(Connection conn=s.getConn()){
-            CachedRowSet c=new CachedRowSetImpl();
-            c.setCommand("select * from manu");
-            c.execute(conn);
-            while(c.next()){
-                lst.add(new Manufacturers(c.getInt(1), c.getString(2)));
+            PreparedStatement pre=conn.prepareStatement("select * from manu");
+            ResultSet rs= pre.executeQuery();            
+            while(rs.next()){
+                lst.add(new Manufacturers(rs.getInt(1), rs.getString(2)));
             }
             return lst;
         }catch(SQLException e){

@@ -5,15 +5,12 @@
  */
 package APJ2Test2;
 
-import com.sun.rowset.CachedRowSetImpl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
-import javax.sql.rowset.CachedRowSet;
 
 /**
  *
@@ -100,6 +97,7 @@ public class ProductsImpl implements ProductsInterface {
             PreparedStatement pre=conn.prepareStatement("select * from products where productid=?");
             pre.setInt(1, id);
             ResultSet rs=pre.executeQuery();
+            rs.next();
             return new products(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4));
         }catch(SQLException e){
         e.printStackTrace();

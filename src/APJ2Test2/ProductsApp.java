@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -31,12 +32,12 @@ public class ProductsApp extends javax.swing.JFrame {
      */
     public ProductsApp() {
         initComponents();
-        cbData = new DefaultComboBoxModel<>();
         loadData();
         disableEdit();
     }
 
     private void loadData() {
+        cbData = new DefaultComboBoxModel<>();
         dataTbl = new DefaultTableModel();
         lstManu = new ArrayList<>();
         lstPro = new ArrayList<>();
@@ -49,37 +50,37 @@ public class ProductsApp extends javax.swing.JFrame {
         lstManu = m.getManuData();
         lstPro = p.loadData();
         for (products lstPro1 : lstPro) {
-            String[] row = {lstPro1.getId() + "", lstPro1.getName(), lstPro1.getPrice() + "", m.getManu(lstPro1.getId()).getName()};
+            String[] row = {lstPro1.getId() + "", lstPro1.getName(), lstPro1.getPrice() + "", m.getManu(lstPro1.getManuId()).getName()};
             dataTbl.addRow(row);
         }
         jTable1.setModel(dataTbl);
         for (Manufacturers lstManu1 : lstManu) {
             cbData.addElement(lstManu1);
         }
-        
+
         cbManu.setModel(cbData);
     }
-    
-    private void disableEdit(){
-    txtId.setEnabled(false);
-    txtPrice.setEnabled(false);
-    txtname.setEnabled(false);
-    cbManu.setEnabled(false);
+
+    private void disableEdit() {
+        txtId.setEnabled(false);
+        txtPrice.setEnabled(false);
+        txtname.setEnabled(false);
+        cbManu.setEnabled(false);
     }
-    
-    private void enableEdit(){
-    txtId.setEnabled(true);
-    txtPrice.setEnabled(true);
-    txtname.setEnabled(true);
-    cbManu.setEnabled(true);
-    txtId.setText("");
-    txtPrice.setText("");
-    txtname.setText("");
+
+    private void enableEdit() {
+        txtId.setEnabled(true);
+        txtPrice.setEnabled(true);
+        txtname.setEnabled(true);
+        cbManu.setEnabled(true);
+        txtId.setText("");
+        txtPrice.setText("");
+        txtname.setText("");
     }
-    
-    private boolean checkValid(){
-        if(txtId.getText().equals("")|txtPrice.getText().equals("")|txtname.getText().equals("")){
-        return false;
+
+    private boolean checkValid() {
+        if (txtId.getText().equals("") | txtPrice.getText().equals("") | txtname.getText().equals("")) {
+            return false;
         }
         return true;
     }
@@ -141,6 +142,11 @@ public class ProductsApp extends javax.swing.JFrame {
         });
 
         btnFind.setText("Find");
+        btnFind.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFindActionPerformed(evt);
+            }
+        });
 
         btnDel.setText("Delete");
 
@@ -226,14 +232,14 @@ public class ProductsApp extends javax.swing.JFrame {
 
     private void btnInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInsertActionPerformed
         // TODO add your handling code here:
-        if(btnInsert.getText().equals("Insert")){
-        enableEdit();
-        btnInsert.setText("Save");
-        }else{
-            ProductsImpl p=new ProductsImpl();
-            if(checkValid()){
-                Manufacturers m=(Manufacturers) cbManu.getSelectedItem();
-                int get=p.AddData(Integer.parseInt(txtId.getText()), txtname.getText(), Integer.parseInt(txtPrice.getText()),m.getId() );
+        if (btnInsert.getText().equals("Insert")) {
+            enableEdit();
+            btnInsert.setText("Save");
+        } else {
+            ProductsImpl p = new ProductsImpl();
+            if (checkValid()) {
+                Manufacturers m = (Manufacturers) cbManu.getSelectedItem();
+                int get = p.AddData(Integer.parseInt(txtId.getText()), txtname.getText(), Integer.parseInt(txtPrice.getText()), m.getId());
                 btnInsert.setText("Insert");
                 disableEdit();
                 loadData();
@@ -242,20 +248,48 @@ public class ProductsApp extends javax.swing.JFrame {
     }//GEN-LAST:event_btnInsertActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        ProductsImpl p=new ProductsImpl();
-         int get=p.UpdateData(Integer.parseInt(txtId.getText()), null, WIDTH, WIDTH);
+        ProductsImpl p = new ProductsImpl();
+        if (checkValid()) {
+            Manufacturers m = (Manufacturers) cbManu.getSelectedItem();
+            int get = p.UpdateData(Integer.parseInt(txtId.getText()), txtname.getText(), Integer.parseInt(txtPrice.getText()), m.getId());
+            loadData();
+        }
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
         // TODO add your handling code here:
-        
-        products p=lstPro.get(jTable1.getSelectedRow());
-        txtId.setText(p.getId()+"");
-        txtPrice.setText(p.getPrice()+"");
+        enableEdit();
+        products p = lstPro.get(jTable1.getSelectedRow());
+        ManufacturerImpl m = new ManufacturerImpl();
+        txtId.setText(p.getId() + "");
+        txtPrice.setText(p.getPrice() + "");
         txtname.setText(p.getName());
-        cbData.setSelectedItem(lstManu.get(jTable1.getSelectedRow()));
+        cbData.setSelectedItem(m.getManu(p.getManuId()));
         cbManu.setModel(cbData);
     }//GEN-LAST:event_jTable1MouseClicked
+
+    private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
+        boolean isValid = false;
+        int getInt = 0;
+        while (isValid == false) {
+            String get = JOptionPane.showInputDialog("Enter id u need to find");
+            if (get != null) {
+                try {
+                    getInt = Integer.parseInt(get);
+                    isValid = true;
+                } catch (NumberFormatException e) {
+                    isValid = false;
+                    JOptionPane.showMessageDialog(rootPane, "Invalid");
+                }
+            }else{ break;}
+        }
+        if (isValid == true) {
+            ProductsImpl p = new ProductsImpl();
+            ManufacturerImpl m = new ManufacturerImpl();
+            products pro = p.findData(getInt);
+            JOptionPane.showMessageDialog(rootPane, pro.getId() + "-" + pro.getName() + "-" + pro.getPrice() + "-" + m.getManu(pro.getManuId()));
+        }
+    }//GEN-LAST:event_btnFindActionPerformed
 
     /**
      * @param args the command line arguments
